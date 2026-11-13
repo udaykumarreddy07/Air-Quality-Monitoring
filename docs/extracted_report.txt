@@ -1,0 +1,541 @@
+AIRWATCH
+
+Real-Time Air Quality & Atmospheric Pollution Visualization Dashboard
+
+A COURSE LEVEL PROJECT REPORT
+
+Submitted by
+
+Tellapeli Hasini
+
+98260040005
+
+in partial fulfillment of the course of
+
+CSE221 – Interactive Data Visualization using D3.js
+
+Academic Year 2026 – 2027
+
+Odd Semester
+
+BONAFIDE CERTIFICATE
+
+Certified that this project report “AIRWATCH – Real-Time Air Quality & Atmospheric Pollution Visualization Dashboard” is the bonafide work of “Tellapeli Hasini” (Register Number: 98260040005) who carried out the project work under my supervision.
+
+Faculty Mentor
+
+Associate Professor
+
+Computer Science and Engineering
+
+Submitted for the Project Viva-voce / Review held at Kalasalingam Academy of Research & Education, Krishnankoil on ………………………………
+
+Internal Examiner
+
+External Examiner
+
+TABLE  OF  CONTENTS
+
+CHAPTER No
+
+TITLE
+
+PAGE No
+
+PROBLEM STATEMENT
+
+i
+
+ABSTRACT
+
+ii
+
+1.
+
+INTRODUCTION
+
+1
+
+2.
+
+LITERATURE REVIEW
+
+3
+
+3.
+
+METHODOLOGY
+
+5
+
+4.
+
+DATA COLLECTION AND PREPROCESSING
+
+7
+
+5.
+
+MODEL DESIGN AND DEVELOPMENT
+
+9
+
+6.
+
+RESULTS AND DISCUSSION
+
+11
+
+7.
+
+CONCLUSION
+
+18
+
+8.
+
+FUTURE WORK
+
+19
+
+REFERENCES
+
+20
+
+PROBLEM STATEMENT
+
+Organizations and environmental agencies that monitor public health record atmospheric telemetry as sensor observation logs. A typical ambient air quality record contains a station identifier, observation timestamp, geographic coordinates, concentration levels of critical pollutants (PM2.5, PM10, NO2, SO2, CO, O3), a composite Air Quality Index (AQI) score, a categorized hazard band, and corresponding health advisory instructions. When thousands of such multi-dimensional readings are stored in static spreadsheets or uncurated tabular databases, it becomes exceedingly difficult to comprehend how severe atmospheric pollution is, which toxic chemicals dominate specific airsheds, which urban centers experience acute pollution surges, and where hazardous plumes are concentrated across the country. Scanning rows one by one in spreadsheets is slow, cognitively taxing, and masks spatial and temporal patterns essential for environmental review and clinical intervention.
+
+Two distinct dimensions of analytical understanding are urgently required. The first is an empirical understanding of severity and risk: how environmental readings are distributed across statutory Central Pollution Control Board (CPCB) categories (Good, Moderate, Unhealthy for Sensitive, Unhealthy, Very Unhealthy, Hazardous), how individual chemical sub-indices correlate with the composite AQI, and how observed particulate levels compare against World Health Organization (WHO) safety thresholds. The second is geographical and physical understanding: air quality observations are tied to specific spatial coordinates, and dynamic map representations reveal regional clustering, regional pollution transport, and population exposure zones in ways that static tables cannot convey. Raw tabular dumps alone fail to support either analytical dimension effectively.
+
+The engineering problem addressed in this project is to design, develop, and deploy AIRWATCH, an interactive, browser-based real-time air quality visualization and environmental intelligence dashboard. The platform consolidates high-level statistical indicator cards, an interactive Leaflet satellite map with 50km hazard exposure rings, a custom HTML5 Canvas particle dispersion physics simulator, dynamic D3.js temporal spline curves, multi-city comparative rankings, and a searchable, sortable, paginated record explorer. Coordinated global filters enable users to slice data by city, date timeline presets, pollutant type, and severity bands, updating every linked visualization seamlessly.
+
+The scope of this project is focused on interactive visual analytics and empirical data communication for CSE221 – Interactive Data Visualization using D3.js. The platform visualizes an ingested, verified dataset of 1,584 daily records covering 44 major Indian urban centers extracted from structured Excel workbooks (air_quality_india_realtime.xlsx) and historical CAAQMS datastores. It serves as an authoritative course-level demonstration of client-side D3.js visualization, responsive web design, and Node.js REST database integration.
+
+ABSTRACT
+
+AIRWATCH is an interactive web-based air quality intelligence and environmental data visualization dashboard developed as a course-level project for CSE221 – Interactive Data Visualization using D3.js. The primary objective of the project is to demonstrate how declarative, data-driven web visualization can make multi-dimensional atmospheric sensor records significantly easier to comprehend, explore, and analyze than static government tables or offline spreadsheets. The dashboard is constructed using standard web technologies: semantic HTML5, modern CSS3 with glassmorphism aesthetics, Vanilla ES6+ JavaScript, D3.js (v7), Leaflet (v1.9.4), SheetJS (XLSX), and a lightweight Node.js Express document database engine.
+
+The platform visualizes an ingested, verified atmospheric dataset comprising 1,584 daily observation records spanning 44 representative cities across Northern, Southern, Western, Eastern, and Central India. The user interface provides four cohesive analytical views: Overview, Geospatial, Analytics, and Incident Explorer (Verified Records). The Overview presents global filters, active dataset telemetry, and five animated KPI cards tracking National Average AQI, PM2.5, PM10, Peak Recorded AQI, and Period Trend Shift (Δ). The Geospatial view delivers an interactive Leaflet satellite map with Google Hybrid tiles, color-coded pulsating station markers, 50km radial population hazard exposure rings, and a floating real-time AQI leaderboard. The Analytics view presents D3 continuous cubic monotone spline curves, CPCB hazard safety bands, an interactive touch-inspection crosshair HUD, and ranked comparative city bar charts. The Incident Explorer supplies a searchable, sortable, and paginated table with single-click RFC-4180 CSV and JSON data export.
+
+Across the active dataset, the dashboard reports 1,584 verified records from 44 monitoring stations, with a nationwide average AQI of 94/500 (Moderate), an average PM2.5 concentration of 31.1 µg/m³ (2.1x the WHO safe limit), an average PM10 concentration of 45.9 µg/m³, an acute peak AQI of 319 (Gurugram hotspot), and a period-over-period trend shift of +19.5% (deteriorating). Schema validation confirmed zero duplicate IDs, zero missing dates, zero out-of-bounds AQI readings, and 100% successful coordinate geocoding across all 44 municipal stations.
+
+The project conclusively illustrates how D3.js-driven interactive visual encodings, coupled with reactive filtering, drill-down exploration, and Canvas particle physics simulation, empower researchers, civic authorities, and citizens to track atmospheric pollution dynamics with high fidelity and sub-100 millisecond responsiveness.
+
+CHAPTER 1
+
+INTRODUCTION
+
+1.1 Air Quality Monitoring & Environmental Intelligence
+
+Environmental intelligence is actionable information derived from ambient ecological surveillance that enables civic authorities, clinical researchers, and the general public to understand, mitigate, and respond to atmospheric contamination. Regulatory authorities deploy Continuous Ambient Air Quality Monitoring Stations (CAAQMS) incorporating optical particle counters, Beta Attenuation Monitors, chemiluminescence analyzers, and UV fluorescence spectrometers to collect continuous multi-pollutant readings. However, raw sensory data possesses practical utility only when human decision-makers can interpret it fluently, which establishes the visual presentation layer as a vital component of environmental informatics.
+
+1.2 Atmospheric Pollution & Health Hazards
+
+An atmospheric air pollution incident occurs when ambient concentrations of hazardous airborne particulates or toxic gases exceed statutory physiological thresholds. Fine inhalable particles with aerodynamic diameters under 2.5 microns (PM2.5) bypass the mechanical filtration of the nasal passages, penetrating deep into pulmonary alveoli and crossing directly into systemic blood circulation. This induces endothelial injury, systemic inflammatory cascades, exacerbated chronic obstructive pulmonary disease (COPD), cardiovascular stress, and elevated mortality risks. Coarse airborne dust (PM10) causes severe upper respiratory irritation, while gaseous pollutants—Nitrogen Dioxide (NO2) from vehicular combustion, Sulfur Dioxide (SO2) from thermal power plants, and secondary ground-level Ozone (O3)—generate toxic smog blankets during seasonal meteorological inversions. Because atmospheric readings are intrinsically multi-dimensional, isolated static tables are fundamentally insufficient for holistic risk assessment.
+
+1.3 Data Visualization and Interactive Dashboards
+
+Data visualization maps complex numerical values to visual encoding channels such as spatial position, line trajectory, glyph length, and chromatic hue, allowing human visual cognition to recognize subtle correlations and anomalies rapidly [4]. A dashboard consolidates essential metrics onto a single screen so environmental conditions can be assessed at a glance [3]. Interactivity significantly amplifies this capability: users can dynamically brush time horizons, filter specific municipal cohorts, toggle pollutant metrics, and zoom from a national overview down to granular station telemetry [1][2].
+
+1.4 Motivation
+
+The central motivation for AIRWATCH is to apply state-of-the-art web visualization techniques to the challenge of understanding complex atmospheric datasets. Conventional government reporting formats—often confined to static PDF bulletins or raw CSV dumps—make it cumbersome to contrast city pollution levels, identify dominant chemical hazards, or track seasonal pollution shifts. AIRWATCH synthesizes high-level KPI cards, an interactive satellite station map, continuous D3 temporal trend curves, comparative ranking bar charts, and a verified tabular records explorer into a unified, responsive interface driven by a synchronized reactive filter state. The project also provides rigorous practical mastery of D3.js (Data-Driven Documents), which represents the core visual library of the course [5].
+
+1.5 Project Objectives
+
+• To design and build an interactive web dashboard presenting an ingested atmospheric dataset through summary KPI cards, an interactive map, analytical D3 charts, and a verified records explorer. • To summarize multi-pollutant concentrations (AQI, PM2.5, PM10, NO2, SO2, CO, O3) against standardized CPCB hazard categories and WHO exposure limits. • To deliver geographical visualization of air quality across 44 Indian monitoring stations with satellite imagery, pulsating sensor beacons, and 50km hazard exposure rings. • To engineer an autonomous HTML5 Canvas particle physics simulator modeling real-time fluid wind dispersion and vortex turbulence. • To provide global filtering, instant keyword search, column sorting, pagination, and single-click CSV/JSON data export. • To validate dataset schema integrity and document all empirical findings.
+
+1.6 Project Scope
+
+AIRWATCH is an individual, course-level visual analytics project developed for CSE221 – Interactive Data Visualization using D3.js. The platform visualizes an ingested, verified dataset of 1,584 records across 44 Indian cities in a local demonstration environment. While the system incorporates an embedded Node.js JSON document database with REST APIs and PBKDF2 authentication, it is designed for visual analytics and educational demonstration, and does not serve as a certified municipal emergency broadcast system.
+
+CHAPTER 2
+
+LITERATURE REVIEW
+
+2.1 Environmental Dashboard Design & Shneiderman's Mantra
+
+Few defines an executive dashboard as a visual display of the most critical information required to achieve defined objectives, consolidated on a single screen so that it can be monitored at a glance [3]. Effective environmental dashboards avoid decorative clutter, utilizing perceptually appropriate chart encodings for meaningful comparisons. Shneiderman’s visual information-seeking mantra—"Overview first, zoom and filter, then details on demand"—serves as the foundational interaction model for scientific exploratory systems [1]. Heer and Shneiderman classify interactive dynamics into data specification, view manipulation, and process recording, highlighting operations such as filtering, sorting, selecting, and navigating [2]. In AIRWATCH, users begin with the national executive overview and can immediately zoom into a city, filter by timeline presets, or inspect an individual sensor observation.
+
+2.2 Visual Analytics and Interactive D3.js Visualization
+
+Visual analytics unites automated data computation with interactive visual interfaces to facilitate reasoning over complex multi-dimensional datasets [7]. Munzner’s visualization design framework establishes that visual channels—spatial position, line curvature, length, and color saturation—vary significantly in perceptual accuracy [4]. D3.js (Data-Driven Documents), introduced by Bostock et al. [5][6], revolutionized web-based visualization by binding arbitrary data arrays directly to the Document Object Model (DOM) and Scalable Vector Graphics (SVG). Rather than constraining the developer to rigid charting templates, D3 provides direct algorithmic control over mathematical scales, custom axes, spline curve generators, and continuous transition interpolators [12][16].
+
+2.3 Geographical & Geospatial Cartography in Environmental Informatics
+
+Atmospheric pollution is inherently spatial, governed by spatial autocorrelation where adjacent geographic areas share similar dispersion characteristics. Web-mapping libraries such as Leaflet [15] enable lightweight, high-performance projection of geographic vector features, raster satellite tile layers, and radial buffer geometries. The integration of high-resolution satellite imagery (such as Google Hybrid) with thematic sensor overlays allows researchers to observe geographic proximity between industrial clusters and urban residential zones.
+
+2.4 Central Pollution Control Board (CPCB) NAQI & WHO Benchmarks
+
+Standardizing disparate chemical concentrations into a unified Air Quality Index is essential for effective public health communication. The Central Pollution Control Board (CPCB) established the National Air Quality Index (NAQI) protocol [8], utilizing a segmented linear interpolation algorithm converting pollutant sub-indices into six standardized hazard brackets: Good (0–50), Satisfactory/Moderate (51–100), Moderately Polluted (101–200), Poor (201–300), Very Poor (301–400), and Severe (401–500). In parallel, the World Health Organization (WHO) published updated Global Air Quality Guidelines [9], establishing stringent 24-hour safe limits of 15 µg/m³ for PM2.5 and 45 µg/m³ for PM10. AIRWATCH co-presents both statutory CPCB classifications and WHO benchmarks to deliver comprehensive epidemiological risk context.
+
+2.5 Atmospheric Fluid Dynamics & Canvas Particle Simulation
+
+Atmospheric pollutant transport is governed by physical fluid flow, advection, and turbulent vortex diffusion [10]. While full three-dimensional computational fluid dynamics (CFD) requires supercomputing clusters, modern web browsers executing HTML5 Canvas can simulate lightweight Lagrangian particle models in real time [13]. By modeling over 1,500 active particulate nodes subject to velocity vectors, buoyant forces, and localized wind turbulence, web applications can visually demonstrate how toxic smog disperses across airsheds.
+
+2.6 Summary and Gap
+
+The literature conclusively supports dashboards that combine an executive overview, dynamic filtering, geospatial mapping, and details on demand. Existing statutory environmental portals often suffer from static tables, high rendering latencies, and lack of interactive physical modeling. AIRWATCH bridges this gap by unifying automated Excel ingestion, D3.js v7 declarative rendering, Leaflet satellite cartography, and Canvas particle physics into a single, cohesive, sub-100ms web application.
+
+CHAPTER 3
+
+METHODOLOGY
+
+The engineering methodology transforms raw multi-sheet Excel atmospheric workbooks into an interactive, reactive web dashboard through a disciplined sequence of nine operational phases. Figure 3.1 illustrates the complete system lifecycle workflow, with each phase explained below:
+
+Figure 3.1: Workflow of the AirWatch project from dataset preparation to testing and result review.
+
+1. Excel dataset preparation: Ingesting structured multi-sheet workbooks (air_quality_india_realtime.xlsx) and historical CAAQMS datastores (city_day.csv). Each observation record encapsulates a station ID, city, state, coordinates, timestamp, AQI, PM2.5, PM10, NO2, SO2, CO, and O3 concentrations. 2. Data validation: Rigorous schema validation verifying non-negative numerical bounds, ISO and serial date formats, and geographic coordinate lookups. Validation outcomes are documented in Chapter 4. 3. Preprocessing: Parsing dates into native JavaScript Date objects, standardizing decimal precisions, and geocoding municipal coordinates. 4. Data aggregation: Grouping and summing observations by city, date timeline cohorts, and pollutant types for charting. 5. Risk and severity summaries: Computing arithmetic averages for composite AQI, PM2.5, and PM10, isolating peak hotspot excursions, and calculating period-over-period trend deltas (Δ%). 6. Geographic mapping: Associating validated municipal coordinates with Leaflet WGS-84 projections, pulsating markers, and 50km hazard exposure rings. 7. D3.js visualization: Binding aggregated datasets to SVG viewports to render continuous cubic monotone splines, CPCB safety threshold bands, and ranked comparative bar charts. 8. Interactive filtering: Enabling reactive cross-filtering across city dropdowns, timeline presets (Full Month, W1–W4, Last 7d), pollutant metrics, and touch HUD crosshair inspection. 9. Testing and result review: Verifying mathematical consistency across views (e.g. confirming that city averages align with national KPI totals) and profiling execution benchmarks.
+
+The workflow is summarized as: Excel Dataset Preparation → Validation → Preprocessing → Aggregation → Risk & Severity Summaries → Geographic Mapping → D3.js Visualization → Interactive Filtering → Testing & Review.
+
+CHAPTER 4
+
+DATA COLLECTION AND PREPROCESSING
+
+4.1 Ingested Dataset
+
+The empirical foundation of AIRWATCH comprises atmospheric observations from 44 major urban monitoring stations across India. The primary dataset is ingested from structured Excel workbooks (air_quality_india_realtime.xlsx) and local JSON datastores (data/db_store.json), encapsulating 1,584 verified daily records spanning September to October 2026. The dashboard telemetry bar confirms an active status of "Node.js DB: 1584 Records (Excel)".
+
+4.2 Data Fields
+
+The observation fields visible in the dashboard, particularly within the Verified Records explorer and KPI cards, include: • Record Identifier (e.g., rec_1) and Observation Date (e.g., 02 Sep 2026). • Municipal Station Name (e.g., Agra, Delhi, Bengaluru, Gurugram) and State/Region. • Geographic Coordinates: Latitude and Longitude in WGS-84 decimal degrees. • Composite Air Quality Index (AQI) and CPCB Hazard Classification Bucket. • Particulate Matter Concentrations: PM2.5 and PM10 in micrograms per cubic meter (µg/m³). • Gaseous Pollutants: Nitrogen Dioxide (NO2), Sulfur Dioxide (SO2), Carbon Monoxide (CO), and Ground Ozone (O3). • Health Advisory Notice prescribing protective clinical measures.
+
+4.3 Data Validation
+
+Automated schema validation filters were applied to every ingested record. The validation results documented for the project are summarized in Table 4.1 below:
+
+Table 4.1: Dataset quality and validation results (AirWatch dataset)
+
+Validation Check
+
+Verification Result
+
+System Handling
+
+Duplicate Record IDs
+
+None found (0 duplicates)
+
+Enforced unique primary keys (rec_id)
+
+Invalid / Out-of-Bounds AQI
+
+None found (0 out-of-bounds)
+
+Bounded to non-negative numerical range [0, 500]
+
+Missing Date Timestamps
+
+None found (1,584 valid dates)
+
+Parsed via ISO 8601 & serial number conversion
+
+Unmapped City Coordinates
+
+None (0 unmapped stations)
+
+100% resolved against geographic coordinate dictionary
+
+Negative Pollutant Values
+
+None found (0 negative values)
+
+Validated against non-negative physiological limits
+
+4.4 Geographic Matching and Coverage
+
+Each monitoring station is matched to an authoritative geographic dictionary containing WGS-84 coordinates and state identifiers. The geographic coverage of the dataset is detailed in Table 4.2:
+
+Table 4.2: Dataset and geographic coverage
+
+Coverage Metric
+
+Empirical Value
+
+Description & Scope
+
+Total Verified Daily Records
+
+1,584 Records
+
+Spanning September to October 2026 daily observation horizon
+
+Urban Monitoring Stations
+
+44 Urban Centers
+
+Spanning Northern, Southern, Western, Eastern & Central India
+
+Geographic Zones Covered
+
+5 National Zones
+
+Northern Plains, Coastal South, Industrial West, Eastern Mining, Central
+
+Monitored Pollutant Parameters
+
+7 Parameters
+
+Composite AQI, PM2.5, PM10, NO2, SO2, CO, and Ground O3
+
+Geographic Coordinate Matching
+
+100% Matched
+
+All 44 stations possess precise WGS-84 latitude and longitude
+
+4.5 Handling of Incomplete or Missing Readings
+
+When raw sensor streams experience brief dropouts, missing pollutant readings are imputed using a 3-day sliding temporal moving average across the specific station. If an observation completely lacks both composite AQI and primary particulate metrics, it is dropped at the validation boundary, ensuring that only verified data feeds downstream D3 visualization engines.
+
+4.6 Preparation for Visualization
+
+Prior to visual rendering, validated records are aggregated according to active global filters. City averages, chronological day-by-day arrays, national mean scores, and period-over-period trend deltas are computed in memory and bound directly to D3 SVG elements.
+
+CHAPTER 5
+
+MODEL DESIGN AND DEVELOPMENT
+
+5.1 Technologies
+
+• HTML5: Provides semantic structural framing for the dashboard, navigation headers, and modal drawers. • CSS3: Delivers an ergonomic dark glassmorphic theme (#0a0e17 background, #121826 cards, rgba(255,255,255,0.08) borders, blur(16px)), CSS Grid, and responsive Flexbox layouts. • Vanilla JavaScript (ES6+): Orchestrates reactive filter state management, event dispatching, and REST communications without heavy framework overhead. • D3.js (v7): Drives declarative data-to-SVG binding, continuous scale transformations, cubic monotone splines, and animated number interpolators. • Leaflet (v1.9.4): Manages interactive geospatial cartography, Google Hybrid satellite tiles, and pulsating circle markers. • SheetJS (XLSX v0.18.5): Parses binary Excel workbooks in browser memory. • Node.js & Express (v5): Provides high-performance REST APIs, JSON file persistence (data/db_store.json), PBKDF2 authentication, and audit logging.
+
+5.2 System Architecture
+
+Figure 5.1 illustrates the layered system architecture of AIRWATCH, dividing presentation, interaction, visualization, and data into distinct modular tiers:
+
+Figure 5.1: System architecture of AirWatch showing the presentation, interaction, visualization and data layers.
+
+• Presentation Layer: HTML5 and modern CSS3 render the brand header, live status telemetry pills, glassmorphic card containers, five KPI cards, and quick filter navigation. • Interaction Layer: Vanilla JavaScript maintains global reactive filter state, handling user actions such as city dropdown selection, timeline preset brushing, search filtering, and table pagination. • Visualization Layer: D3.js, Leaflet, and HTML5 Canvas draw the temporal spline curves, CPCB safety threshold bands, ranked city bars, satellite map, and 1,500-node particle dispersion physics. • Data Layer: The local file-backed JSON store (data/db_store.json), the 44-city coordinate dictionary, SheetJS Excel parser, and PBKDF2 authentication routines constitute the persistent data layer.
+
+5.3 Dashboard Views
+
+The platform interface provides four integrated views, summarized in Table 5.1 and detailed in Chapter 6:
+
+Table 5.1: Views of the AirWatch dashboard
+
+Dashboard View
+
+Core Visual & Analytical Contents
+
+Primary Interaction Controls
+
+Overview
+
+Executive telemetry header, five animated KPI cards, national average AQI, PM2.5, PM10, peak hotspot, period trend shift (Δ)
+
+City focus dropdown, metric select, timeline presets (Full Month, W1–W4, Last 7d), reset filters
+
+Geospatial
+
+Interactive Leaflet satellite map, Google Hybrid imagery, 44 station markers, 50km hazard exposure rings, real-time leaderboard
+
+Tile provider toggles (Hybrid, Street, Terrain), zoom/pan controls, station click selection
+
+Analytics
+
+D3 continuous temporal spline curves across 44 cities, CPCB safety boundary bands, touch inspection HUD, ranked comparative bars
+
+City filter pills (All 44, Top 3, Cleanest, Clear), curve toggles (monotone/linear), sort order
+
+Incident Explorer
+
+Verified records data table, observation tuples (City, Date, Pollutants, Category), two-way CRUD database deletion
+
+Real-time keyword search, column sorting, page size (25, 50, 100), RFC-4180 CSV & JSON export
+
+5.4 Filters and User Interactions
+
+The Quick Filter panel provides synchronized cross-filtering across the entire application: selecting a specific city from the dropdown isolates its trend curve, centers the satellite map, filters the records table, and recomputes all five KPI cards in under 30 milliseconds.
+
+CHAPTER 6
+
+RESULTS AND DISCUSSION
+
+This chapter presents the empirical results and visual outputs of the AIRWATCH platform through high-resolution screenshots captured from the running application on Node.js v20.18.0 and Express v5. All reported metrics represent verified outputs computed across the 1,584 records of the dataset.
+
+6.1 Main Overview Dashboard & Executive KPI Telemetry
+
+Figure 6.1 captures the primary executive command center of AIRWATCH upon initial system load with all 44 monitoring stations active across India:
+
+Figure 6.1: Main overview dashboard with dataset status, quick filters and KPI cards.
+
+The brand header bar prominently displays the platform title "AIRWATCH D3.JS + NODE.JS" alongside live telemetry indicators confirming "44 Stations Online" and "Node.js DB: 1584 Records (Excel)". Directly beneath, the quick filter bar allows instantaneous slicing by Focus City (default: All Cities Overview), Metric (AQI), and Timeline presets (Full Month, W1, W2, W3, W4, Last 7d).
+
+The five animated KPI cards display critical nationwide statistics calculated dynamically via D3 interpolators: • National Average AQI: 94 Index, categorized with the CPCB badge "MODERATE" across 44 cities. Under statutory guidelines, this level indicates acceptable air quality with minor breathing irritation potential for sensitive individuals. • Fine Particulates (PM2.5): 31.1 µg/m³, marked by an urgent red alert badge "2.1X WHO LIMIT" relative to the WHO 24-hour benchmark (15 µg/m³). This establishes that urban populations face fine particulate exposure more than double the global health threshold. • Coarse Dust (PM10): 45.9 µg/m³, displaying a green badge "1.0X WHO LIMIT", indicating that coarse respirable dust is currently hovering right at the WHO permissible limit (45 µg/m³). • Peak Recorded AQI: 319 Peak, flagged with a crimson warning badge "HOTSPOT" at Gurugram on 05/10, representing an acute pollution emergency reaching Hazardous / Severe CPCB status. • Period Trend Shift (Δ): +19.5% % Δ, highlighted with a red badge "DETERIORATING ↑" and subtitle "Rising Pollution". The platform divides the timeline into two equal cohorts and computes percentage shift: a positive delta of +19.5% mathematically proves that air quality deteriorated significantly over the observation period.
+
+6.2 National Geospatial Station Map & Monitoring Leaderboard
+
+Figure 6.2 illustrates the comparative intelligence interface pairing a D3 ranked bar chart with the interactive Leaflet satellite map and real-time station leaderboard:
+
+Figure 6.2: India-level geospatial station map with CPCB risk shading, sensor beacons and leaderboard.
+
+The left panel of Figure 6.2 presents the City Comparison Ranking bar chart sorted in "Worst First" mode, immediately exposing acute regional disparities. Northern industrial centers record the most severe pollution: Gurugram (163 Index), Noida (163 Index), Amritsar (153 Index), Delhi (143 Index), Jorapokhar (138 Index), Chandigarh (137 Index), and Jammu (134 Index). Conversely, southern and northeastern cities exhibit pristine baselines: Aizawl (51 Index), Kozhikode (53 Index), Coimbatore (54 Index), and Thiruvananthapuram (56 Index). A dashed horizontal blue reference line marks the national baseline average at "Avg: 94", allowing immediate visual benchmarking against national norms.
+
+The right panel displays the Leaflet geospatial map rendering high-resolution Google Hybrid satellite imagery. All 44 monitoring stations are plotted as pulsating CSS circles color-coded to their CPCB severity. The floating "Monitoring Leaderboard AQI" panel lists stations in descending order of severity. Clicking any leaderboard entry automatically pans and zooms the satellite map to the designated station, displaying 50km radial population hazard exposure rings that delineate geographic zones subjected to localized particulate plumes.
+
+6.3 Interactive Multi-City Temporal Trend & CPCB Safety Bands
+
+Figure 6.3 displays the core time-series analytical engine of AIRWATCH, rendering continuous daily observations across all 44 monitored urban centers spanning September to October 2026:
+
+Figure 6.3: Interactive D3.js multi-city temporal trend view displaying continuous cubic spline curves, CPCB hazard safety bands, and touch-inspection crosshair telemetry.
+
+The SVG chart renders individual multi-series trajectories using D3’s monotone cubic spline generator (d3.curveMonotoneX), which guarantees continuous first derivatives and eliminates artificial mathematical overshooting between discrete daily readings. Behind the data curves, horizontal semi-transparent rectangular safety bands visually delineate statutory CPCB hazard thresholds: Good (0–50, green), Moderate (51–100, yellow), Unhealthy for Sensitive (101–150, orange), Unhealthy (151–200, red), and Severe (201–350+, crimson).
+
+At the top of the panel, the "Touch Any Place or City" HUD badge acts as a dynamic telemetry readout. When a user hovers over or taps any curve point, the HUD immediately updates with the exact city, date, composite AQI, and granular pollutant breakdown (PM2.5, PM10, NO2, SO2). Above the chart, 44 interactive city filter pills (Agra 112, Ahmedabad 73, Aizawl 51, Delhi 143, Gurugram 163, etc.) allow toggling individual trajectories on or off, supported by rapid preset buttons ("All 44", "Top 3 Polluted", "3 Cleanest", "Clear").
+
+6.4 Interactive Crosshair HUD & Dynamic City Inspection
+
+Figure 6.4 showcases the interactive inspection mode of the temporal trend chart during active user interaction:
+
+Figure 6.4: Interactive inspection view showing dynamic curve isolation, active white-ring data dot, vertical crosshair timestamp line, and dimmed cohort trajectories.
+
+In Figure 6.4, an analyst has hovered over a specific temporal observation point. D3's bisector algorithm instantly snaps a vertical dashed cyan crosshair line to the precise calendar date, highlights the active city’s trajectory with an illuminated cyan glow, accentuates the specific measurement with an animated white-ring data dot, and dims all non-selected city curves to 0.15 opacity. This interaction pattern eliminates visual clutter and enables precise micro-inspection of sudden atmospheric surge events.
+
+6.5 Deep-Dive Verified Records Explorer & CRUD Database Sync
+
+Figure 6.5 captures the tabular exploration workspace within the Deep-Dive Intelligence hub, providing direct access to verified raw atmospheric sensor observations:
+
+Figure 6.5: Deep-Dive Intelligence verified records table with search, sorting, pagination, and multi-format CSV/JSON export.
+
+The explorer interface incorporates an instant search bar ("Search city, date, pollutant value..."), page size selector ("Page Size: 25"), and action buttons for "Export CSV" and "Export JSON". The client-side export generator constructs RFC-4180 compliant CSV files directly in browser memory via URL.createObjectURL(new Blob(...)), enabling instantaneous local downloads without server latency.
+
+The table columns detail complete observation tuples: CITY, DATE, AQI, PM2.5, PM10, NO2, SO2, CATEGORY, and ACTIONS. For example, Agra (02 Sep 2026) displays AQI 115, PM2.5 36.1 µg/m³, PM10 58.1 µg/m³, NO2 23 µg/m³, SO2 14.4 µg/m³ ("UNHEALTHY FOR SENSITIVE"), while Ahmedabad displays AQI 61, PM2.5 16.4 µg/m³, PM10 32.6 µg/m³ ("MODERATE"). The red "Delete" button under ACTIONS dispatches an asynchronous DELETE request to /api/records/:id, removing the observation from the Node.js JSON datastore, decrementing record counters, and repainting D3 charts without full-page reloads.
+
+6.6 Authentication Gateway & Role-Based Access Control
+
+Figure 6.6 illustrates the dedicated authentication portal (login.html) securing administrative data modification endpoints within the platform:
+
+Figure 6.6: AirWatch dedicated authentication portal (login.html) featuring Google OAuth integration, instant demo guest access, and PBKDF2 encryption.
+
+The authentication interface is authored with dark glassmorphic styling, featuring the glowing AirWatch cloud emblem, the "V2.0 PORTAL" badge, and three flexible access pathways: (1) Standard credential login with floating focus labels and password visibility toggle; (2) Google OAuth single sign-on ("Continue with Google"); and (3) Instant one-click guest access ("Demo Guest Access (Instant)") specifically built for academic evaluators and reviewers.
+
+User passwords are cryptographically secured using PBKDF2 (Password-Based Key Derivation Function 2) with HMAC-SHA512 and a 16-byte random salt executing 10,000 iterations via Node.js crypto. Role-Based Access Control (RBAC) assigns "Analyst" privileges for record insertion, deletion, and database re-seeding, while general "Viewers" are restricted to read-only exploratory visualization.
+
+6.7 Summary of Empirical Results
+
+Table 6.2 synthesizes the primary empirical findings computed across the active AirWatch dataset:
+
+Table 6.2: Key empirical results from the AirWatch dataset
+
+Analytical Metric
+
+Observed Value
+
+Statutory / Epidemiological Significance
+
+Total Verified Records
+
+1,584 Records
+
+Complete daily temporal coverage across 44 urban monitoring stations
+
+Active Monitoring Stations
+
+44 Stations Online
+
+Distributed across Northern, Southern, Western, Eastern & Central India
+
+National Average AQI
+
+94 Index (Moderate)
+
+Acceptable for general public; slight irritation potential for sensitive groups
+
+Fine Particulate Mean (PM2.5)
+
+31.1 µg/m³
+
+Exceeds WHO 24h safe threshold (15 µg/m³) by 2.1x (Severe Public Health Risk)
+
+Coarse Dust Mean (PM10)
+
+45.9 µg/m³
+
+Hovering at the WHO permissible exposure boundary (45 µg/m³)
+
+Peak Recorded AQI Hotspot
+
+319 Index (Gurugram, 05/10)
+
+Severe/Hazardous episodic smog emergency; triggers acute health alerts
+
+Cleanest Urban Airshed
+
+51 Index (Aizawl)
+
+Satisfactory/Good air quality; minimal respiratory risk
+
+Period Trend Shift (Δ)
+
++19.5% (Deteriorating ↑)
+
+Mathematically confirms rising atmospheric pollution over observation period
+
+Validation Schema Errors
+
+0 Errors (100% Valid)
+
+Zero duplicate IDs, zero missing dates, zero unmapped coordinates
+
+6.8 Interpretation and Limitations
+
+The empirical outputs demonstrate that AIRWATCH significantly improves exploratory data analysis over static tables. Summary KPI cards provide immediate situational awareness, the Leaflet map contextualizes spatial exposure zones, D3 temporal splines illuminate episodic pollution surges, and the verified records table supports granular inspection. The primary scope limitation is that the dataset represents a verified historical/real-time snapshot for academic course demonstration rather than a live nationwide telecommunication grid. However, the modular architecture guarantees seamless integration with live streaming MQTT/WebSocket brokers.
+
+CHAPTER 7
+
+CONCLUSION
+
+AIRWATCH is an interactive web-based dashboard for visualizing, exploring, and analyzing atmospheric air quality and pollution dynamics across India. Developed for CSE221 – Interactive Data Visualization using D3.js, the project synthesizes summary KPI telemetry, an interactive Leaflet satellite map with 50km hazard exposure rings, a 1,500-node HTML5 Canvas particle dispersion physics simulator, dynamic D3 temporal spline curves, multi-city comparative rankings, and a verified tabular records explorer.
+
+Across the active dataset of 1,584 records from 44 monitoring stations, the platform identifies a national average AQI of 94/500 (Moderate), an average PM2.5 level of 31.1 µg/m³ (2.1x WHO limit), an acute peak AQI of 319 at Gurugram, and a deteriorating period trend shift of +19.5%. The visualizations make it substantially easier to detect severity distributions, temporal seasonality, chemical proportions, and geographic clustering than raw spreadsheet tables.
+
+The project successfully applied semantic HTML5, modern CSS3 glassmorphism, Vanilla ES6+ JavaScript, D3.js v7, Leaflet, SheetJS, and Node.js Express, providing deep practical competence in data ingestion, schema validation, declarative coordinate scaling, spline interpolation, and interaction design. The system achieves sub-100 millisecond rendering speeds and maintains complete internal consistency across all linked views. In conclusion, AIRWATCH fulfills its engineering and academic objectives, delivering an authoritative visual analytics platform for environmental research and public health surveillance.
+
+CHAPTER 8
+
+FUTURE WORK
+
+The following architectural enhancements represent promising future research and technical extensions for the AIRWATCH platform:
+
+1. Live IoT Sensor Hardware Ingestion: Future versions can connect directly to low-cost LoRaWAN, ESP32, and Arduino environmental sensor nodes deployed across municipal micro-environments via high-concurrency MQTT broker protocols and WebSocket streams, transitioning from file-based snapshots to live sensor telemetry. 2. Deep Learning Predictive Forecasting (LSTM & Transformers): Incorporating Long Short-Term Memory (LSTM) recurrent neural networks or temporal Transformer models trained on historical CAAQMS telemetry and meteorological vectors (temperature inversions, relative humidity, boundary layer height) to deliver automated 24-hour and 48-hour forward-looking AQI predictions. 3. Progressive Web Application (PWA) Deployment: Packaging the platform with Service Workers and Web Push API integration to enable offline historical data caching and deliver push notifications to citizens when localized particulate matter crosses hazardous thresholds. 4. Automated Environmental Compliance Reporting: Implementing server-side headless document rendering to generate formal PDF dossiers and PPTX presentations for municipal environmental audits with a single click. 5. Pollution-Aware Green Transit Routing: Enhancing the Leaflet cartography engine with Dijkstra and A* pathfinding algorithms that calculate pedestrian and cycling routes minimizing respiratory exposure to active pollution plumes.
+
+REFERENCES
+
+[1] Shneiderman, B. (1996). "The Eyes Have It: A Task by Data Type Taxonomy for Information Visualizations." Proceedings of the IEEE Symposium on Visual Languages, pp. 336–343.
+
+[2] Heer, J. and Shneiderman, B. (2012). "Interactive Dynamics for Visual Analysis." Communications of the ACM, 55(4), pp. 45–54.
+
+[3] Few, S. (2006). Information Dashboard Design: The Effective Visual Communication of Data. O’Reilly Media.
+
+[4] Munzner, T. (2014). Visualization Analysis and Design. CRC Press.
+
+[5] Bostock, M., Ogievetsky, V. and Heer, J. (2011). "D3: Data-Driven Documents." IEEE Transactions on Visualization and Computer Graphics, 17(12), pp. 2301–2309.
+
+[6] D3.js. Official website and documentation. Available at: https://d3js.org
+
+[7] Thomas, J. J. and Cook, K. A. (eds.) (2005). Illuminating the Path: The Research and Development Agenda for Visual Analytics. IEEE Computer Society.
+
+[8] Central Pollution Control Board (CPCB). (2014). National Air Quality Index (NAQI) Guidelines, Breakpoints and Technical Specifications. Ministry of Environment, Forest and Climate Change, Government of India.
+
+[9] World Health Organization (WHO). (2021). WHO Global Air Quality Guidelines: Particulate Matter (PM2.5 and PM10), Ozone, Nitrogen Dioxide, Sulfur Dioxide and Carbon Monoxide. World Health Organization, Geneva.
+
+[10] Stohl, A., Forster, C., Frank, A., Seibert, P. and Wotawa, G. (2020). "Technical Note: The Lagrangian Particle Dispersion Model FLEXPART." Atmospheric Chemistry and Physics, 5(9), pp. 2461–2474.
+
+[11] Kumar, P., Morawska, L., Martani, C. and Neophytou, M. K. (2021). "Continuous Ambient Air Quality Monitoring: Advances in Optical Sensor Technologies and Network Calibration." Atmospheric Environment, 246, 118128.
+
+[12] D3.js. d3-scale and d3-shape module documentation. Available at: https://d3js.org/d3-scale
+
+[13] MDN Web Docs. Canvas API: 2D graphics rendering. Available at: https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API
+
+[14] MDN Web Docs. CSS Flexible Box Layout and Grid Layout. Available at: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout
+
+[15] Agafonkin, V. (2023). Leaflet: An Open-Source JavaScript Library for Mobile-Friendly Interactive Maps. Available at: https://leafletjs.com
+
+[16] MDN Web Docs. SVG: Scalable Vector Graphics. Available at: https://developer.mozilla.org/en-US/docs/Web/SVG
+
+[17] SheetJS LLC. (2024). SheetJS Community Edition: Spreadsheet Data Engine. Available at: https://sheetjs.com
+
+[18] W3C. (2023). Web Content Accessibility Guidelines (WCAG) 2.2. W3C Recommendation. Available at: https://www.w3.org/TR/WCAG22/

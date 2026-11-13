@@ -1,0 +1,30 @@
+# Node dependencies
+node_modules/
+
+# Environment variables & local secrets
+.env
+.env.local
+.env.*.local
+
+# Operating System files
+desktop.ini
+Thumbs.db
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor and IDE configurations
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary or backup files
+*~
+*.bak
+*.tmp
+hasiniD3_backup.docx

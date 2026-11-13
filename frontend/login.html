@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Air Quality Monitoring - Dedicated Authentication Portal</title>
+  
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2338bdf8'><path d='M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z'/></svg>">
+  <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+
+  <div class="auth-wrapper">
+    <!-- Brand Header -->
+    <div class="auth-brand">
+      <div class="auth-logo-box">
+        <svg class="auth-logo-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path>
+          <path d="M7 15l3-3 3 2 4-5"></path>
+        </svg>
+      </div>
+      <div class="auth-title-row">
+        <h1 class="auth-title">Air Quality Monitoring</h1>
+        <span class="auth-pill">V2.0 PORTAL</span>
+      </div>
+      <p class="auth-subtitle">Air Quality Monitoring & Analytical Intelligence</p>
+    </div>
+
+    <!-- Login Card -->
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <button class="auth-tab-btn active" id="tabSignIn">Sign In</button>
+        <button class="auth-tab-btn" id="tabCreateAccount">Create Account</button>
+      </div>
+
+      <!-- Social Logins -->
+      <button class="social-btn btn-google" id="btnGoogleAuth">
+        <svg width="18" height="18" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+        </svg>
+        Continue with Google
+      </button>
+
+      <!-- Demo Guest Access Button (matching Figure 6.6) -->
+      <button class="social-btn btn-demo-guest" id="btnDemoGuest">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        Demo Guest Access (Instant)
+      </button>
+
+      <div class="divider">Or with credentials</div>
+
+      <!-- Credential Form -->
+      <form id="loginForm" style="display: flex; flex-direction: column; gap: 14px;">
+        <div class="input-group">
+          <label class="input-label" for="usernameInput">Username or Email</label>
+          <div class="input-container">
+            <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <input type="text" id="usernameInput" class="auth-input" placeholder="e.g. lokan or analyst@airqualitymonitoring.io" value="analyst" required>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <div class="input-header-row">
+            <label class="input-label" for="passwordInput">Password</label>
+            <a href="#" class="forgot-link" onclick="alert('Demo password is admin123'); return false;">Forgot Password?</a>
+          </div>
+          <div class="input-container">
+            <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input type="password" id="passwordInput" class="auth-input" value="admin123" required>
+            <button type="button" class="password-toggle-btn" id="btnTogglePassword">
+              <svg id="eyeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="remember-row">
+          <input type="checkbox" id="rememberDevice" class="remember-checkbox" checked>
+          <label for="rememberDevice">Remember this device</label>
+        </div>
+
+        <button type="submit" class="btn-submit-auth" id="btnSubmit">
+          Sign In to Dashboard &rarr;
+        </button>
+      </form>
+
+      <div class="auth-bottom-link">
+        Don't have an account yet? <a href="#" onclick="alert('For academic evaluation, please use Demo Guest Access.'); return false;">Register here</a>
+      </div>
+    </div>
+
+    <!-- Security Footnote -->
+    <footer class="auth-footer">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      CPCB & WHO Air Quality Intelligence Protocol &bull; 256-bit Encrypted
+    </footer>
+  </div>
+
+  <script>
+    // Password visibility toggle
+    const toggleBtn = document.getElementById('btnTogglePassword');
+    const pwdInput = document.getElementById('passwordInput');
+    const eyeIcon = document.getElementById('eyeIcon');
+
+    toggleBtn.addEventListener('click', () => {
+      const isPwd = pwdInput.type === 'password';
+      pwdInput.type = isPwd ? 'text' : 'password';
+      eyeIcon.innerHTML = isPwd 
+        ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>'
+        : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+    });
+
+    // 1. Demo Guest Access (Instant)
+    document.getElementById('btnDemoGuest').addEventListener('click', async () => {
+      try {
+        const res = await fetch('/api/auth/demo', { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          localStorage.setItem('air_quality_user', JSON.stringify(data.user));
+          window.location.href = '/dashboard';
+        }
+      } catch (err) {
+        console.error(err);
+        // Fallback demo user
+        const demoUser = {
+          username: 'analyst',
+          name: 'Hasini Tellapeli (Demo Guest)',
+          role: 'Analyst'
+        };
+        localStorage.setItem('air_quality_user', JSON.stringify(demoUser));
+        window.location.href = '/dashboard';
+      }
+    });
+
+    // 2. Google OAuth mock
+    document.getElementById('btnGoogleAuth').addEventListener('click', () => {
+      const gUser = {
+        username: 'google_analyst',
+        name: 'Google User',
+        role: 'Analyst'
+      };
+      localStorage.setItem('air_quality_user', JSON.stringify(gUser));
+      window.location.href = '/dashboard';
+    });
+
+    // 3. Regular Credential Form
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('usernameInput').value.trim();
+      const password = document.getElementById('passwordInput').value;
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+        if (data.success) {
+          localStorage.setItem('air_quality_user', JSON.stringify(data.user));
+          window.location.href = '/dashboard';
+        } else {
+          alert(data.error || 'Invalid credentials');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Authentication network error.');
+      }
+    });
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,30 @@
+{
+  "name": "air-quality-monitoring",
+  "version": "2.0.0",
+  "description": "Air Quality Monitoring - Real-Time Air Quality & Atmospheric Pollution Visualization Dashboard",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "watch": "node --watch server.js",
+    "seed": "py scripts/generate_dataset.py && node scripts/generate_excel.js"
+  },
+  "keywords": [
+    "air-quality",
+    "d3",
+    "leaflet",
+    "atmospheric-visualization",
+    "aqi",
+    "cpcb"
+  ],
+  "author": "Tellapeli Hasini (98260040005)",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "adm-zip": "^0.6.1",
+    "cors": "^2.8.6",
+    "express": "^5.3.0",
+    "jsdom": "^31.0.0",
+    "xlsx": "^0.18.5"
+  }
+}
